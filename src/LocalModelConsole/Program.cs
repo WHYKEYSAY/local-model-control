@@ -276,6 +276,12 @@ sealed class ModelConsole
             start.ArgumentList.Add(_distro);
         }
         start.ArgumentList.Add("--");
+        start.ArgumentList.Add("env");
+        foreach (var name in new[] { "LOCAL_MODEL_CONTROL_MODEL_ROOT", "LLAMA_SERVER" })
+        {
+            var value = Environment.GetEnvironmentVariable(name);
+            if (!string.IsNullOrWhiteSpace(value)) start.ArgumentList.Add($"{name}={value}");
+        }
         start.ArgumentList.Add("python3");
         start.ArgumentList.Add($"{_wslRoot}/{script}");
         foreach (var argument in arguments) start.ArgumentList.Add(argument);

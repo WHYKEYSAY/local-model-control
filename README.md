@@ -74,3 +74,7 @@ Downloads require confirmation, use resume/retry, enforce public non-gated repos
 ## License
 
 MIT
+
+## Upstream interfaces
+
+Discovery uses the official [Hugging Face Hub API](https://huggingface.co/docs/huggingface_hub/en/package_reference/hf_api). Runtime profiles target the [llama.cpp server OpenAI-compatible API](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
