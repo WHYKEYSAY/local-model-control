@@ -32,6 +32,11 @@ sealed class ModelConsole
                 continue;
             }
             if (selected == "__refresh") continue;
+            if (selected == "__catalog")
+            {
+                await BrowseRecentCatalogAsync();
+                continue;
+            }
             if (selected == "__discover")
             {
                 await DiscoverAndInstallAsync();
@@ -64,6 +69,7 @@ sealed class ModelConsole
     {
         var entries = models.Select(item => new MenuEntry(item.Id, item.Name, item.Description, item.Available, item.Healthy)).ToList();
         entries.Add(new("__stop", "Stop all models", "Release registered model processes and leave GPUs free.", true, false));
+        entries.Add(new("__catalog", "Recommended recent models", "Rank recent open-weight releases from Artificial Analysis, Ollama, and local hardware fit.", true, false));
         entries.Add(new("__discover", "Discover / install a model", "Search public licensed GGUFs, check hardware fit, then install and smoke-test.", true, false));
         entries.Add(new("__refresh", "Refresh", "Reload status.", true, false));
         entries.Add(new("__exit", "Exit", "Close the console without changing the active model.", true, false));
@@ -97,12 +103,58 @@ sealed class ModelConsole
         }
     }
 
-    private async Task DiscoverAndInstallAsync()
+    private async Task BrowseRecentCatalogAsync()
     {
         Console.Clear();
         Header();
-        Console.Write("Search Hugging Face (blank = newest): ");
-        var search = Console.ReadLine()?.Trim();
+        Console.WriteLine("Loading recent open-weight catalogs and checking this computer…");
+        var result = await ScriptAsync("discovery.py", "catalog", "--months", "4", "--limit", "30");
+        if (ShowError(result)) return;
+        var models = JsonSerializer.Deserialize<List<CatalogModel>>(result.GetProperty("models").GetRawText(), JsonOptions.Options) ?? new();
+        if (models.Count == 0) { ContinuePrompt("No recent catalog models were found."); return; }
+        var index = 0;
+        while (true)
+        {
+            Console.Clear();
+            Header();
+            Console.WriteLine("Recent multi-source catalog. Enter searches for an exact installable GGUF; Esc returns.\n");
+            for (var i = 0; i < models.Count; i++)
+            {
+                var item = models[i];
+                Console.ForegroundColor = i == index ? ConsoleColor.Cyan : item.Fit.Tier == "not_recommended" ? ConsoleColor.DarkGray : ConsoleColor.Gray;
+                Console.WriteLine($"{(i == index ? "▶" : " ")} {item.Name}");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                var parameters = item.ParametersB is null ? "?B" : $"{item.ParametersB:0.#}B";
+                var score = item.IntelligenceIndex is null ? "AA:?" : $"AA:{item.IntelligenceIndex:0.#}";
+                Console.WriteLine($"    {item.ReleaseDate}  {parameters}  {item.Fit.Tier}  {score}  {string.Join("+", item.CatalogSources)}");
+            }
+            Console.ResetColor();
+            var key = Console.ReadKey(true).Key;
+            if (key == ConsoleKey.Escape) return;
+            if (key == ConsoleKey.UpArrow) index = (index - 1 + models.Count) % models.Count;
+            else if (key == ConsoleKey.DownArrow) index = (index + 1) % models.Count;
+            else if (key == ConsoleKey.Enter) break;
+        }
+        var selected = models[index];
+        var search = selected.Id;
+        if (Uri.TryCreate(selected.OfficialWeights, UriKind.Absolute, out var weightsUri) &&
+            weightsUri.Host.Equals("huggingface.co", StringComparison.OrdinalIgnoreCase))
+        {
+            search = weightsUri.AbsolutePath.Trim('/');
+        }
+        await DiscoverAndInstallAsync(search);
+    }
+
+    private async Task DiscoverAndInstallAsync(string? initialSearch = null)
+    {
+        Console.Clear();
+        Header();
+        var search = initialSearch;
+        if (search is null)
+        {
+            Console.Write("Search Hugging Face (blank = newest): ");
+            search = Console.ReadLine()?.Trim();
+        }
         Console.WriteLine("Inspecting hardware and public GGUF artifacts…");
         var args = new List<string> { "discover", "--limit", "10" };
         if (!string.IsNullOrWhiteSpace(search)) { args.Add("--search"); args.Add(search); }
@@ -173,12 +225,13 @@ sealed class ModelConsole
     private async Task ChatAsync(ModelInfo model)
     {
         var messages = new List<ChatMessage>();
+        var reasoningEffort = "medium";
         Console.Clear();
         Header();
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"Connected: {model.Name} — http://127.0.0.1:{model.Port}");
         Console.ResetColor();
-        Console.WriteLine("Commands: /switch  /clear  /stop  /exit\n");
+        Console.WriteLine("Commands: /switch  /clear  /stop  /effort low|medium|high|xhigh  /exit\n");
 
         while (true)
         {
@@ -192,6 +245,17 @@ sealed class ModelConsole
             {
                 messages.Clear();
                 Console.WriteLine("Conversation cleared.\n");
+                continue;
+            }
+            if (input.Trim().StartsWith("/effort "))
+            {
+                var requested = input.Trim().Split(' ', 2)[1].ToLowerInvariant();
+                if (new[] { "low", "medium", "high", "xhigh" }.Contains(requested))
+                {
+                    reasoningEffort = requested;
+                    Console.WriteLine($"Reasoning effort: {reasoningEffort}.\n");
+                }
+                else Console.WriteLine("Use low, medium, high, or xhigh.\n");
                 continue;
             }
             if (input.Trim() == "/stop")
@@ -208,7 +272,7 @@ sealed class ModelConsole
             Console.ResetColor();
             try
             {
-                var answer = await StreamChatAsync(model, messages);
+                var answer = await StreamChatAsync(model, messages, reasoningEffort);
                 messages.Add(new("assistant", answer));
             }
             catch (Exception error)
@@ -221,7 +285,7 @@ sealed class ModelConsole
         }
     }
 
-    private async Task<string> StreamChatAsync(ModelInfo model, List<ChatMessage> messages)
+    private async Task<string> StreamChatAsync(ModelInfo model, List<ChatMessage> messages, string reasoningEffort)
     {
         var payload = new
         {
@@ -229,6 +293,7 @@ sealed class ModelConsole
             messages,
             max_tokens = 2048,
             temperature = 0.2,
+            reasoning_effort = reasoningEffort,
             stream = true
         };
         using var request = new HttpRequestMessage(HttpMethod.Post, $"http://127.0.0.1:{model.Port}/v1/chat/completions")
@@ -365,6 +430,15 @@ sealed record Candidate(
     [property: JsonPropertyName("filename")] string Filename,
     [property: JsonPropertyName("size_gib")] double SizeGib,
     [property: JsonPropertyName("license")] string License,
+    [property: JsonPropertyName("fit")] FitInfo Fit);
+sealed record CatalogModel(
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("release_date")] string ReleaseDate,
+    [property: JsonPropertyName("parameters_b")] double? ParametersB,
+    [property: JsonPropertyName("intelligence_index")] double? IntelligenceIndex,
+    [property: JsonPropertyName("official_weights")] string? OfficialWeights,
+    [property: JsonPropertyName("catalog_sources")] List<string> CatalogSources,
     [property: JsonPropertyName("fit")] FitInfo Fit);
 
 static class JsonOptions

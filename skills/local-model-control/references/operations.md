@@ -18,7 +18,7 @@ The estimator uses artifact bytes plus an overhead allowance. It cannot infer ac
 
 ## User-installed profiles
 
-Downloaded artifacts default to `/data/models/local-model-control` when `/data/models` exists, otherwise `~/models/local-model-control`. Override this with `LOCAL_MODEL_CONTROL_MODEL_ROOT`.
+Downloaded artifacts default to the existing writable model directory with the most free space among `/data/models`, `~/models`, and WSL drive model directories such as `/mnt/d/models`. Override this with `LOCAL_MODEL_CONTROL_MODEL_ROOT`.
 
 Profiles are stored in `~/.local-model-control/installed-models.json`. Runtime state and logs live under `~/.local-model-control/`. To add a hand-tuned profile, use a unique lowercase ID, an argv array rather than a shell command, exact required paths, a localhost port, an alias, and a realistic startup timeout.
 

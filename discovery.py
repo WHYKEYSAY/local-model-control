@@ -13,6 +13,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
 
@@ -21,6 +22,8 @@ import controller
 
 GIB = 1024 ** 3
 HF_API = "https://huggingface.co/api"
+AA_MODELS_URL = "https://artificialanalysis.ai/models"
+OLLAMA_TAGS_URL = "https://ollama.com/api/tags"
 REPO_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 MODEL_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
 SPLIT_PATTERN = re.compile(r"^(.*)-(\d{5})-of-(\d{5})\.gguf$", re.IGNORECASE)
@@ -30,7 +33,7 @@ Progress = Callable[[str], None]
 
 
 def _json_url(url: str, timeout: int = 30) -> Any:
-    request = urllib.request.Request(url, headers={"User-Agent": "local-model-control/0.1"})
+    request = urllib.request.Request(url, headers={"User-Agent": "local-model-control/0.2"})
     with urllib.request.urlopen(request, timeout=timeout) as response:
         return json.load(response)
 
@@ -75,8 +78,14 @@ def model_root() -> Path:
     configured = os.environ.get("LOCAL_MODEL_CONTROL_MODEL_ROOT")
     if configured:
         return Path(configured).expanduser()
-    if Path("/data/models").is_dir() and os.access("/data/models", os.W_OK):
-        return Path("/data/models/local-model-control")
+    candidates = [Path("/data/models"), Path.home() / "models"]
+    mnt = Path("/mnt")
+    if mnt.is_dir():
+        candidates.extend(path / "models" for path in mnt.iterdir() if len(path.name) == 1)
+    writable = [path for path in candidates if path.is_dir() and os.access(path, os.W_OK)]
+    if writable:
+        parent = max(writable, key=lambda path: shutil.disk_usage(path).free)
+        return parent / "local-model-control"
     return Path.home() / "models" / "local-model-control"
 
 
@@ -146,10 +155,16 @@ def _choose_file(siblings: list[dict[str, Any]]) -> dict[str, Any] | None:
 def discover_models(limit: int = 10, search: str | None = None) -> dict[str, Any]:
     limit = max(1, min(limit, 25))
     hardware = hardware_profile()
-    params = {"filter": "gguf", "sort": "lastModified", "direction": "-1", "limit": str(max(30, limit * 4)), "full": "true"}
+    params = {"filter": "gguf", "sort": "lastModified", "direction": "-1", "limit": "500", "full": "true"}
     if search:
         params["search"] = search
     summaries = _json_url(f"{HF_API}/models?{urllib.parse.urlencode(params)}")
+    summaries.sort(key=lambda item: (
+        item.get("id", "").split("/", 1)[0].lower() in KNOWN_QUANTIZERS,
+        int(item.get("likes") or 0),
+        int(item.get("downloads") or 0),
+        item.get("lastModified") or "",
+    ), reverse=True)
     results = []
     for summary in summaries:
         if len(results) >= limit:
@@ -159,7 +174,7 @@ def discover_models(limit: int = 10, search: str | None = None) -> dict[str, Any
         if not REPO_PATTERN.fullmatch(repo_id) or summary.get("gated") or summary.get("private"):
             continue
         license_name = _license(tags)
-        if not license_name or "text-generation" not in tags:
+        if not license_name or not ({"text-generation", "image-text-to-text", "conversational"} & set(tags)):
             continue
         detail = _json_url(f"{HF_API}/models/{repo_id}?blobs=true")
         artifact = _choose_file(detail.get("siblings", []))
@@ -184,6 +199,150 @@ def discover_models(limit: int = 10, search: str | None = None) -> dict[str, Any
             "caveat": "Capacity estimate only. License, chat template, architecture support, quality, and speed still require validation."
         })
     return {"hardware": hardware, "candidates": results}
+
+
+def _field(text: str, name: str) -> str | None:
+    match = re.search(rf'"{re.escape(name)}":(?:"([^"]*)"|([0-9.]+|true|false|null))', text)
+    if not match:
+        return None
+    value = match.group(1) if match.group(1) is not None else match.group(2)
+    return None if value == "null" else value
+
+
+def _json_object_at(text: str, start: int) -> str:
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(start, len(text)):
+        character = text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
+                in_string = False
+            continue
+        if character == '"':
+            in_string = True
+        elif character == "{":
+            depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start:index + 1]
+    return ""
+
+
+def _artificial_analysis_catalog() -> list[dict[str, Any]]:
+    request = urllib.request.Request(AA_MODELS_URL, headers={"User-Agent": "local-model-control/0.2"})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        page = response.read().decode("utf-8", errors="replace").replace('\\"', '"')
+    starts = list(re.finditer(r'\{"id":"[0-9a-f-]+","slug":"', page))
+    results = []
+    seen = set()
+    for start in starts:
+        chunk = _json_object_at(page, start.start())
+        slug = _field(chunk, "slug")
+        if not slug or slug in seen or _field(chunk, "isOpenWeights") != "true":
+            continue
+        release_date = _field(chunk, "releaseDate")
+        name = _field(chunk, "name")
+        if not release_date or not name:
+            continue
+        parameters = _field(chunk, "parameters")
+        active = _field(chunk, "inferenceParametersActiveBillions")
+        intelligence = _field(chunk, "intelligenceIndex")
+        results.append({
+            "id": slug,
+            "name": name,
+            "release_date": release_date,
+            "parameters_b": float(parameters) if parameters else None,
+            "active_parameters_b": float(active) if active else None,
+            "license": _field(chunk, "licenseName"),
+            "official_weights": _field(chunk, "modelWeightsSourceUrl"),
+            "intelligence_index": float(intelligence) if intelligence else None,
+            "catalog_sources": ["artificial_analysis"],
+        })
+        seen.add(slug)
+    return results
+
+
+def _ollama_catalog() -> list[dict[str, Any]]:
+    data = _json_url(OLLAMA_TAGS_URL)
+    return [{
+        "id": item.get("model") or item.get("name"),
+        "name": item.get("model") or item.get("name"),
+        "release_date": str(item.get("modified_at", ""))[:10],
+        "parameters_b": None,
+        "active_parameters_b": None,
+        "license": None,
+        "official_weights": None,
+        "intelligence_index": None,
+        "catalog_sources": ["ollama"],
+        "ollama_size_bytes": int(item.get("size") or 0),
+    } for item in data.get("models", []) if item.get("model") or item.get("name")]
+
+
+def _catalog_key(value: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", value.lower().replace("nvidia", ""))
+
+
+def discover_recent_catalog(months: int = 4, limit: int = 30) -> dict[str, Any]:
+    months = max(1, min(months, 24))
+    limit = max(1, min(limit, 100))
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=31 * months)).date().isoformat()
+    errors = []
+    try:
+        aa_models = _artificial_analysis_catalog()
+    except Exception as error:
+        aa_models = []
+        errors.append(f"Artificial Analysis: {error}")
+    try:
+        ollama_models = _ollama_catalog()
+    except Exception as error:
+        ollama_models = []
+        errors.append(f"Ollama: {error}")
+    ollama_by_key = {_catalog_key(item["id"]): item for item in ollama_models}
+    hardware = hardware_profile()
+    results = []
+    seen = set()
+    for item in aa_models:
+        if item["release_date"] < cutoff:
+            continue
+        key = _catalog_key(item["id"])
+        ollama = next((value for candidate, value in ollama_by_key.items() if key in candidate or candidate in key), None)
+        if ollama:
+            item["catalog_sources"].append("ollama")
+            item["ollama_model"] = ollama["id"]
+            item["ollama_size_bytes"] = ollama.get("ollama_size_bytes", 0)
+        estimated_q4 = int(item["parameters_b"] * 0.60 * GIB) if item.get("parameters_b") else int(item.get("ollama_size_bytes", 0))
+        item["estimated_q4_bytes"] = estimated_q4 or None
+        item["fit"] = _fit(estimated_q4, hardware) if estimated_q4 else {"tier": "unknown", "estimated_runtime_bytes": None, "reason": "Catalog does not expose enough weight-size metadata."}
+        results.append(item)
+        seen.add(key)
+    for item in ollama_models:
+        key = _catalog_key(item["id"])
+        if key in seen or item["release_date"] < cutoff:
+            continue
+        size = item.get("ollama_size_bytes", 0)
+        item["estimated_q4_bytes"] = size or None
+        item["fit"] = _fit(size, hardware) if size else {"tier": "unknown", "estimated_runtime_bytes": None, "reason": "Ollama catalog entry does not expose a local artifact size."}
+        results.append(item)
+    tier_order = {"single_gpu": 0, "multi_gpu": 1, "cpu_gpu_hybrid": 2, "cpu_only": 3, "unknown": 4, "not_recommended": 5}
+    results.sort(key=lambda item: (
+        tier_order.get(item["fit"]["tier"], 9),
+        -(item.get("intelligence_index") or -1),
+        item["release_date"],
+    ))
+    return {
+        "hardware": hardware,
+        "cutoff": cutoff,
+        "sources": ["Artificial Analysis", "Ollama Registry", "Hugging Face artifact resolution"],
+        "source_errors": errors,
+        "models": results[:limit],
+        "caveat": "Catalog ranking is a lead generator. Exact GGUF, license, engine compatibility, quality, and speed require install planning and validation.",
+    }
 
 
 def install_plan(repo_id: str, filename: str) -> dict[str, Any]:
@@ -287,6 +446,10 @@ def install_model(
         "gpus": [gpu["name"] for gpu in hardware_profile()["gpus"]],
         "timeout_seconds": 600,
         "required_paths": [str(path) for path in destinations],
+        "required_files": [
+            {"path": str(path), "size_bytes": int(artifact["size_bytes"])}
+            for path, artifact in zip(destinations, plan["artifacts"])
+        ],
         "command": [server, "-m", str(destinations[0]), "--host", "127.0.0.1", "--port", "8002", "--alias", model_id, "-c", "8192", "-ngl", "99", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--no-mmap", "--jinja"],
         "source": {"repo_id": repo_id, "filename": filename, "sha": plan["sha"]}
     }
@@ -320,6 +483,9 @@ def main() -> int:
     discover = sub.add_parser("discover")
     discover.add_argument("--limit", type=int, default=10)
     discover.add_argument("--search")
+    catalog = sub.add_parser("catalog")
+    catalog.add_argument("--months", type=int, default=4)
+    catalog.add_argument("--limit", type=int, default=30)
     plan = sub.add_parser("plan")
     plan.add_argument("repo_id")
     plan.add_argument("filename")
@@ -335,6 +501,8 @@ def main() -> int:
             result = hardware_profile()
         elif args.command == "discover":
             result = discover_models(args.limit, args.search)
+        elif args.command == "catalog":
+            result = discover_recent_catalog(args.months, args.limit)
         elif args.command == "plan":
             result = install_plan(args.repo_id, args.filename)
         else:

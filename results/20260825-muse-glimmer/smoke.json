@@ -1,0 +1,189 @@
+{
+  "model": "muse-glimmer-30b",
+  "native_completion": {
+    "elapsed_s": 1.754,
+    "prompt_tok_s": 31.50115609242859,
+    "decode_tok_s": 67.56868238712298,
+    "predicted_n": 87,
+    "draft_n": 105,
+    "draft_n_accepted": 51
+  },
+  "chinese": {
+    "elapsed_s": 8.808,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "length",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "MoE 路由决定每个 token 被送往哪些专家子网络，从而形成动态的计算图。负载均衡通过辅助损失或哈希路由确保各专家被大致均匀地激活，避免少数专家过载而多数闲置。CPU 卸载将不常使用的专家保留在 CPU 内存中以节省 GPU 显存，路由和负载均衡",
+            "reasoning_content": "用恰好三句话解释 MoE 路由、负载均衡和 CPU 卸载的关系。\n\n用恰好三句话解释 MoE 路由、负载均衡和 CPU 卸载的关系。\n\nWe need exactly three sentences in Chinese. Explain relationship between MoE routing, load balancing, and CPU offloading.\n\nWe need exactly three sentences. Must be exactly three sentences. Chinese punctuation. Sentence delimiter is 。 probably. Need three sentences.\n\nEnsure exactly three sentences. Not more. Use恰好三句话.\n\nWe need explain relationship.\n\nMoE routing: selects experts for tokens. Load balancing ensures experts used evenly. CPU offloading: move experts to CPU memory.\n\nRelationship: routing decides which expert, load balancing prevents hot spots, CPU offloading allows more experts than GPU memory, so routing + load balancing must consider offloading latency.\n\nWe need three sentences.\n\nLet's craft:\n\n第一句：MoE 路由决定每个 token 被送往哪些专家子网络，从而形成动态的计算图。\n第二句：负载均衡通过辅助损失或哈希路由确保各专家被大致均匀地激活，避免少数专家过载而多数闲置。\n第三句：CPU 卸载将不常使用的专家保留在 CPU 内存中以节省 GPU 显存，路由和负载均衡就必须在选择专家时权衡激活频率与 CPU-GPU 传输延迟。\n\nThat's three sentences. Check punctuation: Sentence ends with 。 That's three sentences.\n\nMake sure no extra sentence fragments. The first sentence ends with 。 second ends with 。 third ends with 。\n\nPotential issue: \"MoE 路由决定每个 token 被送往哪些专家子网络，从而形成动态的计算图。\" Good.\n\nSecond: \"负载均衡通过辅助损失或哈希路由确保各专家被大致均匀地激活，避免少数专家过载而多数闲置。\" Good.\n\nThird: \"CPU 卸载将不常使用的专家保留在 CPU 内存中以节省 GPU 显存，路由和负载均衡就必须在选择专家时权衡激活频率与 CPU-GPU 传输延迟。\" Good.\n\nThat's three sentences.\n\nCheck if any extra period? No.\n\nMake sure Chinese punctuation counts. Might be okay.\n\nAlternative: Could be more concise.\n\nEnsure exactly three sentences. No extra line breaks causing confusion? It's fine.\n\nOutput exactly three sentences.\n\nPossibly need to ensure no extra sentence in explanation. Just output three sentences.\n\nLet's output.\n\nPotential nuance: \"用恰好三句话解释\" means use exactly three sentences. Provide three sentences.\n\nMake sure not to add extra explanatory text like \"以下是...\" That would be extra sentence.\n\nSo just output three sentences directly.\n\nLet's produce final answer.\n\nCheck count: Sentence 1: MoE 路由决定每个 token 被送往哪些专家子网络，从而形成动态的计算图。 (1)\nSentence 2: 负载均衡通过辅助损失或哈希路由确保各专家被大致均匀地激活，避免少数专家过载而多数闲置。 (2)\nSentence 3: CPU 卸载将不常使用的专家保留在 CPU 内存中以节省 GPU 显存，路由和负载均衡就必须在选择专家时权衡激活频率与 CPU-GPU 传输延迟。 (3)\n\nGood.\n\nPotential alternative: Use \"。\" as delimiter. Ensure no \"。\" inside? It's fine.\n\nReturn.\n\nMake sure no trailing extra sentence like \"希望...\" No.\n\nOutput final."
+          }
+        }
+      ],
+      "created": 1787641953,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 768,
+        "prompt_tokens": 75,
+        "total_tokens": 843,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-ZYT9ju6WOUGwlKLHymRtwq7Bv0VxSYbh",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 75,
+        "prompt_ms": 296.079,
+        "prompt_per_token_ms": 3.94772,
+        "prompt_per_second": 253.31077178725948,
+        "predicted_n": 768,
+        "predicted_ms": 8485.163,
+        "predicted_per_token_ms": 11.062794002607562,
+        "predicted_per_second": 90.3930778937305,
+        "draft_n": 825,
+        "draft_n_accepted": 492
+      }
+    }
+  },
+  "code": {
+    "elapsed_s": 6.302,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "```python\ndef merge_intervals(intervals):\n    if not intervals:\n        return []\n    intervals = sorted(intervals, key=lambda x: x[0])\n    merged = [intervals[0]]\n    for start, end in intervals[1:]:\n        last_start, last_end = merged[-1]\n        if start <= last_end:\n            merged[-1] = [last_start, max(last_end, end)]\n        else:\n            merged.append([start, end])\n    return merged\n\nassert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]\nassert merge_intervals([[1,4],[4,5]]) == [[1,5]]\nassert merge_intervals([]) == []\n```",
+            "reasoning_content": "写 Python 函数 merge_intervals，并给出恰好三个 assert；只输出代码。\n\nWrite Python function merge_intervals, and give exactly three assert; only output code.\n\nWe need output code only. Probably define function merge_intervals and three asserts.\n\nNeed exactly three assert statements. Probably assert merge_intervals(...) == ...\n\nOnly output code. No explanation.\n\nShould be Python.\n\nProbably merge intervals: given list of [start, end], return merged.\n\nProvide exactly three assert.\n\nEnsure code is valid.\n\nWe need exactly three assert. Not more. Also maybe function definition counts? That's fine.\n\nOutput code only. No extra text.\n\nMake sure not to include comments? Comments okay? Might be okay. Safer to just output code.\n\nProbably:\n\ndef merge_intervals(intervals):\n    ...\n\nassert ...\n\nassert ...\n\nassert ...\n\nExactly three asserts.\n\nLet's produce simple implementation.\n\ndef merge_intervals(intervals):\n    if not intervals:\n        return []\n    intervals = sorted(intervals, key=lambda x: x[0])\n    merged = [intervals[0]]\n    for start, end in intervals[1:]:\n        last_start, last_end = merged[-1]\n        if start <= last_end:\n            merged[-1] = [last_start, max(last_end, end)]\n        else:\n            merged.append([start, end])\n    return merged\n\nassert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]\nassert merge_intervals([[1,4],[4,5]]) == [[1,5]]\nassert merge_intervals([]) == []\n\nThat's three asserts.\n\nMake sure exactly three assert statements. Yes.\n\nOutput only code. No extra text.\n\nPotential issue: Chinese? The prompt is Chinese. Output code only.\n\nEnsure no trailing explanation.\n\nLet's output.\n\nMaybe need to ensure function name merge_intervals.\n\nOk.\n\nPotential edge: intervals may be tuples. Using list.\n\nReturn list of lists.\n\nOk.\n\nMake sure code is syntactically correct.\n\nLet's output exactly.\n\nProbably no extra blank lines? Blank lines okay.\n\nOutput code only.\n\nLet's do final."
+          }
+        }
+      ],
+      "created": 1787641959,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 611,
+        "prompt_tokens": 73,
+        "total_tokens": 684,
+        "prompt_tokens_details": {
+          "cached_tokens": 49
+        }
+      },
+      "id": "chatcmpl-aPKNOwDCMTGKl71TGt2GlZmfIQDt4HiO",
+      "timings": {
+        "cache_n": 49,
+        "prompt_n": 24,
+        "prompt_ms": 174.962,
+        "prompt_per_token_ms": 7.290083333333333,
+        "prompt_per_second": 137.17264320252397,
+        "predicted_n": 611,
+        "predicted_ms": 6076.812,
+        "predicted_per_token_ms": 9.961986885245901,
+        "predicted_per_second": 100.3815816582774,
+        "draft_n": 597,
+        "draft_n_accepted": 412
+      }
+    }
+  },
+  "tool": {
+    "elapsed_s": 2.884,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "tool_calls",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "reasoning_content": "查 Toronto 当前天气。必须调用工具，不要猜。\n\nWe need to check Toronto current weather. Must call tool, don't guess. Use get_weather with city = Toronto? Probably \"Toronto\". The tool expects city string. Let's call get_weather.\n\nWe need to follow guidelines. Must call tool. No guessing. So call get_weather city=\"Toronto\".",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "get_weather",
+                  "arguments": "{\"city\":\"Toronto\"}"
+                },
+                "id": "qpZZi5G4KABztnPjs4CnGXYjKVMlWe4L"
+              }
+            ]
+          }
+        }
+      ],
+      "created": 1787641962,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 122,
+        "prompt_tokens": 403,
+        "total_tokens": 525,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-KpDjZRnirhd2QT8isEvyuMUn8vZcOUSI",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 403,
+        "prompt_ms": 1491.449,
+        "prompt_per_token_ms": 3.7008660049627795,
+        "prompt_per_second": 270.2070268577739,
+        "predicted_n": 122,
+        "predicted_ms": 1348.976,
+        "predicted_per_token_ms": 11.148561983471076,
+        "predicted_per_second": 89.6976669710951,
+        "draft_n": 126,
+        "draft_n_accepted": 80
+      }
+    }
+  },
+  "reasoning": {
+    "elapsed_s": 8.124,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Let the original price be $P$.\n\nAfter a 20% discount you pay\n\n$P_{1}=P\\,(1-0.20)=0.80\\,P$\n\ni.e. 80% of the original.\n\nA 25% rise on that discounted price is\n\n$P_{2}=P_{1}\\,(1+0.25)=0.80P\\times1.25$\n\n$P_{2}=P\\times0.80\\times1.25=P\\times1.00$\n\nThe 25% increase is 25% of the *reduced* amount, not 25% of the\noriginal.  $0.25\\times0.80P =0.20P$, so the 20% you took off is put back\non:\n\n$0.80P+0.25\\times0.80P =0.80P+0.20P =P$.\n\nIn this particular numbers the two moves cancel.  In general a\npercent-off followed by a percent-on is not symmetric because the\nsecond percent is taken on a different base.",
+            "reasoning_content": "A shop discounts an item by 20%, then raises the discounted price by 25%. Is the final price above, below, or equal to the original? Explain briefly.\n\nDiscount 20% then raise discounted price by 25%.\n\nOriginal price = P\nDiscounted = 0.8 P\nRaise by 25% of discounted = 0.8 P * 1.25 = 1.0 P ? 0.8*1.25 = 1.0 exactly. So equal.\n\nWait 0.8 * 1.25 = 1.0. Yes equal.\n\nIf raise by 25% of original? No, raises discounted price by 25%. So equal.\n\nIf they meant raise by 25% of original? No.\n\nSo final price equal to original.\n\nBriefly explain: 20% off means pay 80%. 25% increase on 80% is 20% of original increase = 0.25*0.8 =0.2. So 0.8+0.2=1.0.\n\nSome might think it's above. But it's equal.\n\nIf discount 20% then increase 25% of original? No.\n\nAnswer: equal.\n\nIf they ask above below equal: equal to original (in this exact case). Generally discount then increase leads to net? Actually 20% off then 25% up = net 0% change.\n\nIf discount 20% then raise by 25% of original price? That would be 0.8+0.25=1.05 > original.\n\nBut standard interpretation: raise discounted price by 25% => equal.\n\nExplain briefly.\n\nPossibly note that percentage changes are not symmetric.\n\nFinal price = original * (1-0.20)*(1+0.25)= original *1. So equal.\n\nIf they meant raise to 25% above original? No.\n\nAnswer: equal.\n\nIf want general: final = original *0.8*1.25 = original.\n\nThus neither above nor below.\n\nIf rounding? Exactly equal.\n\nReturn answer.\n\nPossibly mention if they raise by 25 percentage points? No.\n\nThus final price equals original.\n\nProvide brief explanation.\n\nDone."
+          }
+        }
+      ],
+      "created": 1787641970,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 683,
+        "prompt_tokens": 91,
+        "total_tokens": 774,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-zoOQ1I3MobeuTQK5fzRIGKZWYMd20crw",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 91,
+        "prompt_ms": 185.378,
+        "prompt_per_token_ms": 2.037120879120879,
+        "prompt_per_second": 490.8888864913852,
+        "predicted_n": 683,
+        "predicted_ms": 7887.94,
+        "predicted_per_token_ms": 11.565894428152491,
+        "predicted_per_second": 86.46110391306223,
+        "draft_n": 753,
+        "draft_n_accepted": 432
+      }
+    }
+  }
+}

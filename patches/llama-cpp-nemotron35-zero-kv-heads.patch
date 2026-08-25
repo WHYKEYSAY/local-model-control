@@ -1,0 +1,25 @@
+diff --git a/src/models/nemotron-h.cpp b/src/models/nemotron-h.cpp
+index f02674c64..734a85a90 100644
+--- a/src/models/nemotron-h.cpp
++++ b/src/models/nemotron-h.cpp
+@@ -12,8 +12,19 @@ void llama_model_nemotron_h::load_arch_hparams(llama_model_loader & ml) {
+     GGML_ASSERT(hparams.n_layer_nextn < hparams.n_layer_all && "n_layer_nextn must be < n_layer_all");
+ 
+     // A layer is recurrent IFF the n_head_kv value is set to 0 and
+-    // the n_ff value is set to 0. Appended MTP blocks are dense (non-recurrent)
++    // the n_ff value is set to 0. Some early Nemotron 3.5 GGUF conversions
++    // accidentally emitted zero for every n_head_kv entry even though sparse
++    // attention blocks contain attn_k tensors. Recover the KV-head count from
++    // the tensor shape so those files remain loadable.
+     for (uint32_t i = 0; i < hparams.n_layer_all; ++i) {
++        char attn_k_name[64];
++        snprintf(attn_k_name, sizeof(attn_k_name), "blk.%u.attn_k.weight", i);
++        const auto * attn_k = ml.get_weight(attn_k_name);
++        if (i < hparams.n_layer() && hparams.n_head_kv(i) == 0 && attn_k != nullptr) {
++            hparams.n_head_kv_arr[i] = attn_k->tensor->ne[1] / hparams.n_embd_head_k();
++            LLAMA_LOG_WARN("%s: recovered n_head_kv=%u for attention layer %u from tensor shape\n",
++                    __func__, hparams.n_head_kv_arr[i], i);
++        }
+         hparams.is_recr_impl[i] = i < hparams.n_layer() && hparams.n_head_kv(i) == 0 && hparams.n_ff(i) == 0;
+     }
+ 

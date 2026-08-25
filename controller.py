@@ -104,6 +104,13 @@ def healthy(model: dict[str, Any], timeout: float = 2.0) -> bool:
 
 def available(model: dict[str, Any]) -> tuple[bool, list[str]]:
     missing = [path for path in model.get("required_paths", []) if not Path(path).exists()]
+    for artifact in model.get("required_files", []):
+        path = Path(artifact["path"])
+        expected = int(artifact["size_bytes"])
+        if not path.exists():
+            missing.append(str(path))
+        elif path.stat().st_size != expected:
+            missing.append(f"{path} (size {path.stat().st_size} != {expected})")
     if model.get("manager") == "systemd":
         unit = model.get("unit", "")
         probe = subprocess.run(

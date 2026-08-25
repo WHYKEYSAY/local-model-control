@@ -122,6 +122,28 @@
       "timeout_seconds": 180,
       "required_paths": ["/data/models/Gemma4-12B-Q4/gemma-4-12b-it-UD-Q4_K_XL.gguf"],
       "command": ["/opt/llama.cpp/build-master/bin/llama-server", "-m", "/data/models/Gemma4-12B-Q4/gemma-4-12b-it-UD-Q4_K_XL.gguf", "--host", "127.0.0.1", "--port", "8002", "--alias", "gemma4-12b", "-c", "8192", "-ngl", "99", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--no-mmap", "--jinja"]
+    },
+    {
+      "id": "muse-glimmer-30b",
+      "name": "Muse Glimmer 30B Q4 + Vision + DFlash",
+      "description": "August 2026 dense multimodal model; measured 76-113 tok/s with DFlash, accurate vision/tool use; prefer Qwen for strict coding consistency.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "muse-glimmer-30b",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 600,
+      "required_paths": [
+        "/opt/llama-latest/build/bin/llama-server",
+        "/mnt/d/models/muse-glimmer-30b/Muse-Glimmer-30B-KQuant-17GB-Q4_K_M.gguf",
+        "/mnt/d/models/muse-glimmer-30b/mmproj-Muse-Glimmer-30B-Q4_K_M.gguf",
+        "/mnt/d/models/muse-glimmer-30b/dflash-Muse-Glimmer-30B-Q4_K_M.gguf"
+      ],
+      "required_files": [
+        {"path": "/mnt/d/models/muse-glimmer-30b/Muse-Glimmer-30B-KQuant-17GB-Q4_K_M.gguf", "size_bytes": 16756683904},
+        {"path": "/mnt/d/models/muse-glimmer-30b/mmproj-Muse-Glimmer-30B-Q4_K_M.gguf", "size_bytes": 1400328928},
+        {"path": "/mnt/d/models/muse-glimmer-30b/dflash-Muse-Glimmer-30B-Q4_K_M.gguf", "size_bytes": 1631208128}
+      ],
+      "command": ["/opt/llama-latest/build/bin/llama-server", "-m", "/mnt/d/models/muse-glimmer-30b/Muse-Glimmer-30B-KQuant-17GB-Q4_K_M.gguf", "--mmproj", "/mnt/d/models/muse-glimmer-30b/mmproj-Muse-Glimmer-30B-Q4_K_M.gguf", "-md", "/mnt/d/models/muse-glimmer-30b/dflash-Muse-Glimmer-30B-Q4_K_M.gguf", "-ngl", "99", "-ngld", "99", "--host", "127.0.0.1", "--port", "8002", "--alias", "muse-glimmer-30b", "-c", "32768", "-np", "1", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--no-mmap", "--jinja", "--temp", "1.0", "--top-p", "0.95", "--top-k", "64"]
     }
   ]
 }

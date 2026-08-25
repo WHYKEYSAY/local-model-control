@@ -1,6 +1,6 @@
 {
   "name": "local-model-control",
-  "version": "0.1.0+codex.20260825062608",
+  "version": "0.2.0+codex.20260825074832",
   "description": "Discover, install, switch, chat with, and delegate tasks to local GGUF language models.",
   "author": {
     "name": "WHYKEYSAY"

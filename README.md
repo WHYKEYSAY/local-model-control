@@ -9,7 +9,8 @@ The project is solely for local language-model management. It has no ComfyUI dep
 - Arrow-key model picker and streaming local chat in a Windows `.exe`.
 - Safe switching between registered llama.cpp processes and explicit systemd user services.
 - Hardware inspection for NVIDIA VRAM, system RAM, free model storage, and `llama-server`.
-- Live discovery of recently updated public, non-gated, licensed text-generation GGUF repositories through the official Hugging Face API.
+- A recent-model catalog combining Artificial Analysis and the Ollama registry, followed by exact GGUF resolution through Hugging Face.
+- Live discovery of recently updated public, non-gated, licensed text or multimodal GGUF repositories through the official Hugging Face API.
 - Conservative fit estimates: single GPU, multi-GPU, CPU/GPU hybrid, or not recommended.
 - Confirmed, resumable one-click download, exact-size verification, registration, startup, and real chat smoke test.
 - MCP tools and a Codex skill for agent-driven local-model selection and delegation.
@@ -40,7 +41,7 @@ Build:
 powershell -ExecutionPolicy Bypass -File .\build.ps1
 ```
 
-The main menu can select a registered model, release all registered model processes, or search/install a new GGUF. The installer always displays the exact repository, file, license, size, destination, fit tier, and disk check before asking for confirmation.
+The main menu can select a registered model, browse hardware-ranked recent models, release all registered model processes, or search/install a new GGUF. The installer always displays the exact repository, file, license, size, destination, fit tier, and disk check before asking for confirmation. In chat, use `/effort low|medium|high|xhigh` to trade reasoning depth for latency when the model supports it.
 
 ## Linux / WSL CLI
 
@@ -50,6 +51,7 @@ python3 controller.py switch qwen38-27b-q5 --confirm
 python3 controller.py stop --confirm
 
 python3 discovery.py hardware
+python3 discovery.py catalog --months 4 --limit 30
 python3 discovery.py discover --limit 10 --search Qwen
 python3 discovery.py plan OWNER/REPOSITORY model-Q4_K_M.gguf
 python3 discovery.py install OWNER/REPOSITORY model-Q4_K_M.gguf my-model --confirm
@@ -57,9 +59,11 @@ python3 discovery.py install OWNER/REPOSITORY model-Q4_K_M.gguf my-model --confi
 
 Built-in profiles in `models.json` are host-scoped examples for `KeyingD`. Other computers start with an empty list and populate `~/.local-model-control/installed-models.json` through the installer. Hand-tuned profiles can also be added there.
 
+Unless `LOCAL_MODEL_CONTROL_MODEL_ROOT` is set, downloads use the existing writable model directory with the most free space among `/data/models`, `~/models`, and WSL drive model directories. The selected path and free bytes are always shown before confirmation.
+
 ## MCP
 
-The server speaks JSON-lines MCP over stdio and exposes hardware inspection, discovery, install planning, confirmed installation, list/status/switch/stop, and local chat tools.
+The server speaks JSON-lines MCP over stdio and exposes hardware inspection, multi-source recent-model discovery, Hugging Face artifact discovery, install planning, confirmed installation, list/status/switch/stop, and local chat tools. Chat calls accept `reasoning_effort` (`low`, `medium`, `high`, or `xhigh`).
 
 For Claude Desktop, copy `claude-desktop.mcp.example.json` into its MCP configuration and replace the WSL distribution and repository path. If Claude itself runs inside Linux, invoke `python3 /absolute/path/mcp/server.py` directly.
 
@@ -77,4 +81,4 @@ MIT
 
 ## Upstream interfaces
 
-Discovery uses the official [Hugging Face Hub API](https://huggingface.co/docs/huggingface_hub/en/package_reference/hf_api). Runtime profiles target the [llama.cpp server OpenAI-compatible API](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
+Discovery uses [Artificial Analysis](https://artificialanalysis.ai/models), the [Ollama model registry](https://ollama.com/search), and the official [Hugging Face Hub API](https://huggingface.co/docs/huggingface_hub/en/package_reference/hf_api). Runtime profiles target the [llama.cpp server OpenAI-compatible API](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md). See [the August 2026 research and benchmark report](docs/RECENT_MODELS_2026-08.md) for measured results and rejected candidates.

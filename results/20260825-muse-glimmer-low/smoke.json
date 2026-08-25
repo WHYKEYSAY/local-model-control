@@ -1,0 +1,189 @@
+{
+  "model": "muse-glimmer-30b",
+  "native_completion": {
+    "elapsed_s": 1.258,
+    "prompt_tok_s": 157.19810104693934,
+    "decode_tok_s": 76.03668504809322,
+    "predicted_n": 87,
+    "draft_n": 105,
+    "draft_n_accepted": 51
+  },
+  "chinese": {
+    "elapsed_s": 2.957,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "MoE 路由决定每个 token 被送到哪一个专家进行计算。负载均衡确保不同专家被调用的次数大致相等，避免部分专家过载而其他闲置。CPU 卸载则是在 GPU 内存不足时把不活跃的专家权重放到 CPU 上，由路由和负载均衡共同决定哪些专家需要常驻 GPU。",
+            "reasoning_content": "用恰好三句话解释 MoE 路由、负载均衡和 CPU 卸载的关系。\n\nUse exactly three sentences explain MoE routing, load balancing and CPU offloading relationship.\n\nNeed exactly three sentences in Chinese. Probably three sentences.\n\nEnsure punctuation. Three sentences.\n\nLet's craft:\n\nMoE 路由决定每个 token 被送到哪一个专家进行计算。负载均衡确保不同专家被调用的次数大致相等，避免部分专家过载而其他闲置。CPU 卸载则是在 GPU 内存不足时把不活跃的专家权重放到 CPU 上，由路由和负载均衡共同决定哪些专家需要常驻 GPU。\n\nThat's three sentences? Count: 1 MoE 路由决定...计算。 2 负载均衡确保...闲置。 3 CPU 卸载则是在...GPU。 Yes three.\n\nReturn."
+          }
+        }
+      ],
+      "created": 1787642016,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 247,
+        "prompt_tokens": 75,
+        "total_tokens": 322,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-UQ2PhNKjQgmq8SXWyAAb4QXQTFjsxJ7A",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 75,
+        "prompt_ms": 208.011,
+        "prompt_per_token_ms": 2.7734799999999997,
+        "prompt_per_second": 360.5578551134315,
+        "predicted_n": 247,
+        "predicted_ms": 2727.231,
+        "predicted_per_token_ms": 11.08630487804878,
+        "predicted_per_second": 90.20138008111523,
+        "draft_n": 258,
+        "draft_n_accepted": 161
+      }
+    }
+  },
+  "code": {
+    "elapsed_s": 4.105,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "```python\ndef merge_intervals(intervals):\n    if not intervals:\n        return []\n    intervals = sorted(intervals, key=lambda x: x[0])\n    merged = [intervals[0]]\n    for start, end in intervals[1:]:\n        last_start, last_end = merged[-1]\n        if start <= last_end:\n            merged[-1][1] = max(last_end, end)\n        else:\n            merged.append([start, end])\n    return merged\n\nassert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]\nassert merge_intervals([[1,4],[4,5]]) == [[1,5]]\nassert merge_intervals([]) == []\n```",
+            "reasoning_content": "写 Python 函数 merge_intervals，并给出恰好三个 assert；只输出代码。\n\nWrite Python function merge_intervals, and give exactly three assert; only output code.\n\nWe need output code only. Provide function merge_intervals and three asserts.\n\nProbably merge intervals list of [start,end]. Return merged.\n\nOnly output code. No explanation.\n\nEnsure exactly three assert statements.\n\nLet's produce:\n\ndef merge_intervals(intervals):\n    ...\n\nif __name__ == \"__main__\": ...\n\nBut asserts count exactly three. Probably just three assert lines.\n\nOutput code only.\n\nLet's do:\n\ndef merge_intervals(intervals):\n    if not intervals: return []\n    intervals = sorted(intervals, key=lambda x: x[0])\n    merged = [intervals[0]]\n    for start,end in intervals[1:]:\n        last_start,last_end = merged[-1]\n        if start <= last_end:\n            merged[-1][1] = max(last_end, end)\n        else:\n            merged.append([start,end])\n    return merged\n\nassert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]\nassert merge_intervals([[1,4],[4,5]]) == [[1,5]]\nassert merge_intervals([]) == []\n\nThat's three asserts.\n\nOutput only code."
+          }
+        }
+      ],
+      "created": 1787642020,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 450,
+        "prompt_tokens": 73,
+        "total_tokens": 523,
+        "prompt_tokens_details": {
+          "cached_tokens": 49
+        }
+      },
+      "id": "chatcmpl-XJCHZXd5ZUq7S2CbztW8MmXmAZHe4C9T",
+      "timings": {
+        "cache_n": 49,
+        "prompt_n": 24,
+        "prompt_ms": 120.694,
+        "prompt_per_token_ms": 5.0289166666666665,
+        "prompt_per_second": 198.8499842577096,
+        "predicted_n": 450,
+        "predicted_ms": 3958.031,
+        "predicted_per_token_ms": 8.815213808463252,
+        "predicted_per_second": 113.44024339374805,
+        "draft_n": 384,
+        "draft_n_accepted": 322
+      }
+    }
+  },
+  "tool": {
+    "elapsed_s": 1.315,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "tool_calls",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "reasoning_content": "查 Toronto 当前天气。必须调用工具，不要猜。\n\nWe need to call get_weather for city Toronto. Must call tool, don't guess.\n\nUse get_weather with city = \"Toronto\".",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "get_weather",
+                  "arguments": "{\"city\":\"Toronto\"}"
+                },
+                "id": "Xg51xGd7ubIraCKdoG1vQvwQIzMkkFHa"
+              }
+            ]
+          }
+        }
+      ],
+      "created": 1787642022,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 88,
+        "prompt_tokens": 403,
+        "total_tokens": 491,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-tnzSScPMTPkT7NqglgQDArnTPxpJlCti",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 403,
+        "prompt_ms": 317.497,
+        "prompt_per_token_ms": 0.787833746898263,
+        "prompt_per_second": 1269.3033319999872,
+        "predicted_n": 88,
+        "predicted_ms": 963.61,
+        "predicted_per_token_ms": 11.075977011494253,
+        "predicted_per_second": 90.28548894262202,
+        "draft_n": 87,
+        "draft_n_accepted": 59
+      }
+    }
+  },
+  "reasoning": {
+    "elapsed_s": 3.386,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Let the original price be $P$.\n\nAfter a 20% discount\n$$P_{1}=P\\,(1-0.20)=0.80\\,P$$\n\nA 25% increase on the discounted price\n$$P_{2}=P_{1}\\,(1+0.25)=1.25\\,P_{1}=1.25\\times0.80\\,P=1.00\\,P$$\n\n$$P_{2}=P$$\n\nThe two successive percentage changes cancel. In general\n$(1-0.20)(1+0.25)=1$, so the net change is $0\\%$. The final price is the same as the original, e.g. $100\\to 80\\to 100$.",
+            "reasoning_content": "A shop discounts an item by 20%, then raises the discounted price by 25%. Is the final price above, below, or equal to the original? Explain briefly.\n\nDiscount 20% => price = 0.8 original\nRaise by 25% => price = 1.25 * 0.8 = 1.0 ? 1.25*0.8 = 1.0 exactly. Wait 1.25*0.8 = 1.0. So equal.\n\nActually 0.8*1.25 =1.0. So equal.\n\nIf original 100 -> 80 -> 100. Equal.\n\nExplain briefly.\n\nAnswer: equal.\n\nIf want general: net change = (1-0.2)(1+0.25)-1 =0.\n\nReturn.\n\n"
+          }
+        }
+      ],
+      "created": 1787642025,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 325,
+        "prompt_tokens": 91,
+        "total_tokens": 416,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-AtJAIZkgZV0wGq3wJPGLdiTWoPcVtFhl",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 91,
+        "prompt_ms": 138.488,
+        "prompt_per_token_ms": 1.5218461538461538,
+        "prompt_per_second": 657.0966437525273,
+        "predicted_n": 325,
+        "predicted_ms": 3207.978,
+        "predicted_per_token_ms": 9.901166666666667,
+        "predicted_per_second": 100.99819886545356,
+        "draft_n": 309,
+        "draft_n_accepted": 222
+      }
+    }
+  }
+}

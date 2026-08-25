@@ -18,11 +18,13 @@ Use the `local-model-control` MCP tools as the source of truth. The application 
 
 ## Discover and install
 
-Call `inspect_local_hardware`, then `discover_hf_gguf_models`. A fit tier is a capacity estimate, not a speed, quality, engine-compatibility, or safety guarantee.
+Call `inspect_local_hardware`, then `discover_recent_open_models` to find current candidates across model catalogs. Resolve a selected candidate with `discover_hf_gguf_models` before install. A fit tier is a capacity estimate, not a speed, quality, engine-compatibility, or safety guarantee.
 
 Before an install, call `plan_hf_gguf_install` and present the exact repository, artifact, byte/GiB size, declared license, destination, disk margin, fit tier, and caveats. Call `install_hf_gguf_model` with `confirm=true` only after explicit authorization. Automatic installation is limited to public, non-gated repositories with a declared license. Keep the default start-and-smoke validation unless the user specifically asks to register without loading.
 
 Never recommend a model solely from parameter count. Prefer validated registered profiles over a newly discovered artifact when both satisfy the task.
+
+For routine delegation, begin with `reasoning_effort=low`; increase it when the task benefits from additional reasoning and allow a larger token budget. Treat support as model-dependent.
 
 ## Task routing
 

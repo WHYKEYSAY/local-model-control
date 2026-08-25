@@ -1,0 +1,231 @@
+{
+  "model": "muse-glimmer-30b",
+  "native_completion": {
+    "elapsed_s": 1.196,
+    "prompt_tok_s": 174.83740121686833,
+    "decode_tok_s": 78.43988540479997,
+    "predicted_n": 87,
+    "draft_n": 105,
+    "draft_n_accepted": 51
+  },
+  "chinese": {
+    "elapsed_s": 3.875,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "MoE 路由根据输入的 token 选择激活的子专家，决定计算在哪些专家上进行。负载均衡通过辅助损失或哈希路由让不同专家的使用频率趋于一致，避免热点和资源浪费。CPU 卸载则在专家参数过大时把不活跃的专家放在 CPU 内存中，由路由和负载均衡决定何时把所需专家搬回 GPU 执行。",
+            "reasoning_content": "用恰好三句话解释 MoE 路由、负载均衡和 CPU 卸载的关系。\n\nUse exactly three sentences explain MoE routing, load balancing and CPU offloading relationship.\n\nNeed three sentences in Chinese. Exactly three sentences.\n\nExplain relationship.\n\nProbably: MoE routing decides which experts... load balancing ensures... CPU offloading... relation...\n\nMust be exactly three sentences. Ensure punctuation. Chinese sentences end with 。\n\nThree sentences.\n\nLet's craft:\n\nMoE 路由根据输入的 token 选择激活的子专家，决定计算在哪些专家上进行。负载均衡通过辅助损失或哈希路由让不同专家的使用频率趋于一致，避免热点和资源浪费。CPU 卸载则在专家参数过大时把不活跃的专家放在 CPU 内存中，由路由和负载均衡决定何时把所需专家搬回 GPU 执行。\n\nThat's three sentences. Count: 1 MoE 路由...进行。 2 负载均衡...浪费。 3 CPU 卸载...执行。 Good.\n\nReturn."
+          }
+        }
+      ],
+      "created": 1787642056,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 292,
+        "prompt_tokens": 75,
+        "total_tokens": 367,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-yLT1L7ZNUakwfnu6W4wnCwavbHeIl0QV",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 75,
+        "prompt_ms": 134.932,
+        "prompt_per_token_ms": 1.7990933333333332,
+        "prompt_per_second": 555.8355319716599,
+        "predicted_n": 292,
+        "predicted_ms": 3725.662,
+        "predicted_per_token_ms": 12.802962199312715,
+        "predicted_per_second": 78.10692435330957,
+        "draft_n": 354,
+        "draft_n_accepted": 174
+      }
+    }
+  },
+  "code": {
+    "elapsed_s": 4.494,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "```python\ndef merge_intervals(intervals):\n    if not intervals:\n        return []\n    intervals = sorted(intervals, key=lambda x: x[0])\n    merged = [intervals[0]]\n    for start, end in intervals[1:]:\n        last_start, last_end = merged[-1]\n        if start <= last_end:\n            merged[-1] = (last_start, max(last_end, end))\n        else:\n            merged.append((start, end))\n    return merged\n\nassert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]\nassert merge_intervals([[1,4],[4,5]]) == [[1,5]]\nassert merge_intervals([]) == []\n```",
+            "reasoning_content": "写 Python 函数 merge_intervals，并给出恰好三个 assert；只输出代码。\n\nWrite Python function merge_intervals, and give exactly three assert; only output code.\n\nNeed exactly three assert statements. Probably function definition plus three asserts.\n\nOutput only code.\n\nWe need merge intervals. Provide code.\n\nProbably:\n\ndef merge_intervals(intervals):\n ...\n\nassert ...\n\nMake sure exactly three assert statements. No extra asserts. Only output code.\n\nLet's produce:\n\ndef merge_intervals(intervals):\n    if not intervals: return []\n    ...\n\nThen three asserts.\n\nEnsure exactly three assert lines. No other assert.\n\nOutput code only.\n\nLet's do:\n\ndef merge_intervals(intervals):\n    if not intervals:\n        return []\n    intervals = sorted(intervals, key=lambda x: x[0])\n    merged = [intervals[0]]\n    for start,end in intervals[1:]:\n        last_start,last_end = merged[-1]\n        if start <= last_end:\n            merged[-1] = (last_start, max(last_end, end))\n        else:\n            merged.append((start,end))\n    return merged\n\nassert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]\nassert merge_intervals([[1,4],[4,5]]) == [[1,5]]\nassert merge_intervals([]) == []\n\nThat's three asserts.\n\nOutput only code."
+          }
+        }
+      ],
+      "created": 1787642060,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 466,
+        "prompt_tokens": 73,
+        "total_tokens": 539,
+        "prompt_tokens_details": {
+          "cached_tokens": 49
+        }
+      },
+      "id": "chatcmpl-PiWJPpyqPgLmoSFuKvCLTEr84Ei2b5vz",
+      "timings": {
+        "cache_n": 49,
+        "prompt_n": 24,
+        "prompt_ms": 155.19,
+        "prompt_per_token_ms": 6.46625,
+        "prompt_per_second": 154.64913976416005,
+        "predicted_n": 466,
+        "predicted_ms": 4310.892,
+        "predicted_per_token_ms": 9.270735483870967,
+        "predicted_per_second": 107.86630701952173,
+        "draft_n": 411,
+        "draft_n_accepted": 329
+      }
+    }
+  },
+  "tool": {
+    "elapsed_s": 1.103,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "tool_calls",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "reasoning_content": "查 Toronto 当前天气。必须调用工具，不要猜。\n\nWe need to call get_weather for city Toronto. Must call tool, don't guess.\n\nUse get_weather with city = \"Toronto\".",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "get_weather",
+                  "arguments": "{\"city\":\"Toronto\"}"
+                },
+                "id": "raUKGfE34DWj3r6SUjGBruUw1B3syoeV"
+              }
+            ]
+          }
+        }
+      ],
+      "created": 1787642061,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 88,
+        "prompt_tokens": 403,
+        "total_tokens": 491,
+        "prompt_tokens_details": {
+          "cached_tokens": 398
+        }
+      },
+      "id": "chatcmpl-mSwtf053lRkH0Ck8eTBhJ61ZpAap4pQy",
+      "timings": {
+        "cache_n": 398,
+        "prompt_n": 5,
+        "prompt_ms": 96.57,
+        "prompt_per_token_ms": 19.314,
+        "prompt_per_second": 51.77591384487936,
+        "predicted_n": 88,
+        "predicted_ms": 944.988,
+        "predicted_per_token_ms": 10.86193103448276,
+        "predicted_per_second": 92.06466113855413,
+        "draft_n": 87,
+        "draft_n_accepted": 59
+      }
+    }
+  },
+  "reasoning": {
+    "elapsed_s": 4.03,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "Let the original price be $P$.\n\nAfter a 20% discount the price is\n$$P_{1}=P\\,(1-0.20)=0.80\\,P$$\n\nA 25% increase on the discounted price is\n$$P_{2}=P_{1}\\,(1+0.25)=1.25\\,P_{1}=1.25\\times0.80\\,P=1.00\\,P$$\n\n$P_{2}=P$. The 25% rise is 25% of a smaller base, so it does not recover the 20% cut.\n\nE.g. $100\\to 100\\times0.8=80\\to 80\\times1.25=100$.\n\nIn general a $a\\%$ cut followed by a $b\\%$ rise is a net change of $(1-b/100)(1-a/100)-1$. Here $(0.8)(1.25)-1=0$.",
+            "reasoning_content": "A shop discounts an item by 20%, then raises the discounted price by 25%. Is the final price above, below, or equal to the original? Explain briefly.\n\nDiscount 20% => price = 0.8 * original\nThen raise by 25% => price = 1.25 * 0.8 * original = 1.0 * original? 1.25*0.8 = 1.0 exactly. So equal.\n\nWait 1.25*0.8 = 1.0. Yes equal.\n\nIf original 100 -> 80 -> 100.\n\nSo equal to original.\n\nExplain briefly.\n\nAnswer: equal.\n\nPossibly below? No.\n\nFinal price equals original.\n\nReturn explanation.\n\n"
+          }
+        }
+      ],
+      "created": 1787642065,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 353,
+        "prompt_tokens": 91,
+        "total_tokens": 444,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "id": "chatcmpl-6ecdFJV0iAkIHNWIycaR3k8J2IWTk51G",
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 91,
+        "prompt_ms": 200.582,
+        "prompt_per_token_ms": 2.204197802197802,
+        "prompt_per_second": 453.67979180584496,
+        "predicted_n": 353,
+        "predicted_ms": 3780.1,
+        "predicted_per_token_ms": 10.738920454545454,
+        "predicted_per_second": 93.11922965000926,
+        "draft_n": 363,
+        "draft_n_accepted": 231
+      }
+    }
+  },
+  "vision": {
+    "elapsed_s": 11.956,
+    "response": {
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "图片为竖构图，整体背景以深蓝色为主。\n\n背景中有一条从画面左下向右上延伸的柔和光带，光带颜色由下至上渐变：下部为淡蓝、青绿色，中部为黄绿色，上部为黄色并带少量橙色，光晕边缘模糊，呈现出彩虹般的渐变过渡。\n\n画面右下角有一只手部的局部，呈右手姿势，手掌朝向画面左侧，指尖向上伸出，四指微微弯曲，拇指在下方。手部轮廓和边缘带有淡黄色光晕，内部色调为淡紫粉色与黄色的混合，表面有轻微颗粒质感。手部仅显示从手腕到指尖的部分，手腕在画面右边缘被截断。\n\n整体画面光感柔和，光带与手部的黄色光晕在色调上相呼应。",
+            "reasoning_content": "客观描述图片，不要猜测看不见的内容。\n\nWe need describe image objectively. No speculation about unseen content. Describe colors, hand, background, light beam.\n\nProvide description.\n\nLet's output concise objective description."
+          }
+        }
+      ],
+      "created": 1787642077,
+      "model": "muse-glimmer-30b",
+      "system_fingerprint": "b503-eb25b7263",
+      "object": "chat.completion",
+      "usage": {
+        "completion_tokens": 242,
+        "prompt_tokens": 4148,
+        "total_tokens": 4390,
+        "prompt_tokens_details": {
+          "cached_tokens": 49
+        }
+      },
+      "id": "chatcmpl-dTQgN3daatSZCaTarYvgqWeb1wb5F3O5",
+      "timings": {
+        "cache_n": 49,
+        "prompt_n": 4099,
+        "prompt_ms": 7183.247,
+        "prompt_per_token_ms": 1.7524388875335448,
+        "prompt_per_second": 570.6333083075104,
+        "predicted_n": 242,
+        "predicted_ms": 4173.721,
+        "predicted_per_token_ms": 17.318344398340248,
+        "predicted_per_second": 57.74224007785859,
+        "draft_n": 393,
+        "draft_n_accepted": 110
+      }
+    }
+  }
+}

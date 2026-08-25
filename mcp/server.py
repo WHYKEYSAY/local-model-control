@@ -28,8 +28,20 @@ TOOLS = [
         "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
     },
     {
+        "name": "discover_recent_open_models",
+        "description": "Discover recent open-weight models from Artificial Analysis and Ollama, estimate local capacity fit, and expose official-weight links before resolving exact Hugging Face GGUF artifacts.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "months": {"type": "integer", "minimum": 1, "maximum": 24, "default": 4},
+                "limit": {"type": "integer", "minimum": 1, "maximum": 100, "default": 30}
+            },
+            "additionalProperties": False,
+        },
+    },
+    {
         "name": "discover_hf_gguf_models",
-        "description": "Find recently updated public, non-gated, licensed text-generation GGUFs on Hugging Face and estimate single-GPU, multi-GPU, hybrid, or unsuitable capacity fit. Estimates require real load validation.",
+        "description": "Find and rank public, non-gated, licensed text or multimodal GGUFs on Hugging Face and estimate single-GPU, multi-GPU, hybrid, or unsuitable capacity fit. Estimates require real load validation.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -110,7 +122,8 @@ TOOLS = [
                 "prompt": {"type": "string"},
                 "system": {"type": "string"},
                 "max_tokens": {"type": "integer", "minimum": 1, "maximum": 16384, "default": 2048},
-                "temperature": {"type": "number", "minimum": 0, "maximum": 2, "default": 0.2}
+                "temperature": {"type": "number", "minimum": 0, "maximum": 2, "default": 0.2},
+                "reasoning_effort": {"type": "string", "enum": ["low", "medium", "high", "xhigh"], "default": "medium"}
             },
             "required": ["prompt"],
             "additionalProperties": False,
@@ -134,7 +147,8 @@ TOOLS = [
                     }
                 },
                 "max_tokens": {"type": "integer", "minimum": 1, "maximum": 16384, "default": 2048},
-                "temperature": {"type": "number", "minimum": 0, "maximum": 2, "default": 0.2}
+                "temperature": {"type": "number", "minimum": 0, "maximum": 2, "default": 0.2},
+                "reasoning_effort": {"type": "string", "enum": ["low", "medium", "high", "xhigh"], "default": "medium"}
             },
             "required": ["messages"],
             "additionalProperties": False,
@@ -150,13 +164,14 @@ def _active_model() -> dict[str, Any]:
     return active
 
 
-def _chat(messages: list[dict[str, Any]], max_tokens: int, temperature: float) -> dict[str, Any]:
+def _chat(messages: list[dict[str, Any]], max_tokens: int, temperature: float, reasoning_effort: str = "medium") -> dict[str, Any]:
     active = _active_model()
     payload = {
         "model": active["alias"],
         "messages": messages,
         "max_tokens": max_tokens,
         "temperature": temperature,
+        "reasoning_effort": reasoning_effort,
         "stream": False,
     }
     request = urllib.request.Request(
@@ -187,6 +202,8 @@ def _chat(messages: list[dict[str, Any]], max_tokens: int, temperature: float) -
 def call_tool(name: str, arguments: dict[str, Any]) -> Any:
     if name == "inspect_local_hardware":
         return discovery.hardware_profile()
+    if name == "discover_recent_open_models":
+        return discovery.discover_recent_catalog(int(arguments.get("months", 4)), int(arguments.get("limit", 30)))
     if name == "discover_hf_gguf_models":
         return discovery.discover_models(int(arguments.get("limit", 10)), arguments.get("search"))
     if name == "plan_hf_gguf_install":
@@ -212,9 +229,9 @@ def call_tool(name: str, arguments: dict[str, Any]) -> Any:
         if arguments.get("system"):
             messages.append({"role": "system", "content": arguments["system"]})
         messages.append({"role": "user", "content": arguments["prompt"]})
-        return _chat(messages, int(arguments.get("max_tokens", 2048)), float(arguments.get("temperature", 0.2)))
+        return _chat(messages, int(arguments.get("max_tokens", 2048)), float(arguments.get("temperature", 0.2)), arguments.get("reasoning_effort", "medium"))
     if name == "chat_local_model":
-        return _chat(arguments["messages"], int(arguments.get("max_tokens", 2048)), float(arguments.get("temperature", 0.2)))
+        return _chat(arguments["messages"], int(arguments.get("max_tokens", 2048)), float(arguments.get("temperature", 0.2)), arguments.get("reasoning_effort", "medium"))
     raise controller.ControlError(f"Unknown tool: {name}")
 
 
@@ -234,7 +251,7 @@ def handle(message: dict[str, Any]) -> dict[str, Any] | None:
         return response(message_id, {
             "protocolVersion": PROTOCOL_VERSION,
             "capabilities": {"tools": {"listChanged": False}},
-            "serverInfo": {"name": "local-model-control", "version": "0.1.0"},
+            "serverInfo": {"name": "local-model-control", "version": "0.2.0"},
         })
     if method == "ping":
         return response(message_id, {})
