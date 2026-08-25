@@ -1,0 +1,9 @@
+interface:
+  display_name: "Local Model Control"
+  short_description: "Safely switch and chat with local GPU models"
+  default_prompt: "Use $local-model-control to inspect my local models and switch to the best one for this task."
+dependencies:
+  tools:
+    - type: mcp
+      value: local-model-control
+      description: "Local model discovery, lifecycle, and chat tools"

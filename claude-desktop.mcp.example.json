@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "local-model-control": {
+      "command": "wsl.exe",
+      "args": [
+        "-d",
+        "YOUR_WSL_DISTRO",
+        "--",
+        "python3",
+        "/path/to/local-model-control/mcp/server.py"
+      ]
+    }
+  }
+}

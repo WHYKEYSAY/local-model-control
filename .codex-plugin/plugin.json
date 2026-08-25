@@ -1,0 +1,38 @@
+{
+  "name": "local-model-control",
+  "version": "0.1.0+codex.20260825062346",
+  "description": "Discover, install, switch, chat with, and delegate tasks to local GGUF language models.",
+  "author": {
+    "name": "WHYKEYSAY"
+  },
+  "homepage": "https://github.com/WHYKEYSAY/local-model-control",
+  "repository": "https://github.com/WHYKEYSAY/local-model-control",
+  "license": "MIT",
+  "keywords": [
+    "local-llm",
+    "gguf",
+    "llama.cpp",
+    "mcp",
+    "gpu"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Local Model Control",
+    "shortDescription": "Control and delegate to local LLMs",
+    "longDescription": "Hardware-aware discovery, confirmed installation, safe model switching, health checks, and local OpenAI-compatible chat delegation.",
+    "developerName": "WHYKEYSAY",
+    "category": "Productivity",
+    "capabilities": [
+      "MCP tools",
+      "Skill",
+      "Local LLM lifecycle",
+      "GGUF discovery"
+    ],
+    "defaultPrompt": [
+      "Inspect my local models and choose one for this task.",
+      "Find a new public GGUF that fits this computer.",
+      "Delegate this bounded task to my active local model."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

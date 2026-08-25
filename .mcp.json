@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "local-model-control": {
+      "command": "python3",
+      "args": ["/mnt/c/Telotia/Github/local-model-control/mcp/server.py"]
+    }
+  }
+}

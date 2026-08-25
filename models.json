@@ -1,0 +1,127 @@
+{
+  "profile_hostnames": ["keyingd"],
+  "models": [
+    {
+      "id": "qwen35-122b",
+      "name": "Qwen3.5 122B-A10B MTP",
+      "description": "Deep reasoning daily driver; both GPUs; about 37 tok/s on code/reasoning.",
+      "manager": "systemd",
+      "unit": "keying-122b.service",
+      "port": 8001,
+      "alias": "keying-deep",
+      "gpus": ["RTX 5090", "RTX 5080"],
+      "timeout_seconds": 600
+    },
+    {
+      "id": "qwen38-27b-q5",
+      "name": "Qwen3.8 27B Q5 + Vision + MTP2",
+      "description": "Recommended balanced planner; multimodal; measured five-test mean 100.9 tok/s.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "qwen3.8-27b",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 420,
+      "required_paths": [
+        "/mnt/d/models/qwen3.8-27b/Q5_K_S/Qwen3.8-27B-Q5_K_S.gguf",
+        "/mnt/d/models/qwen3.8-27b/Q5_K_S/mmproj-Qwen3.8-27B-bf16.gguf"
+      ],
+      "command": ["/mnt/c/Telotia/Github/serve-qwen3.8-27b/scripts/serve.sh"]
+    },
+    {
+      "id": "qwen38-27b-q4",
+      "name": "Qwen3.8 27B Q4 + Vision + MTP2",
+      "description": "Speed experiment; up to 114 tok/s in the local sweep; lower precision than Q5.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "qwen3.8-27b",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 420,
+      "required_paths": [
+        "/mnt/d/models/qwen3.8-27b/Q4_K_M/Qwen3.8-27B-Q4_K_M.gguf",
+        "/mnt/d/models/qwen3.8-27b/Q5_K_S/mmproj-Qwen3.8-27B-bf16.gguf"
+      ],
+      "command": ["/mnt/c/Telotia/Github/serve-qwen3.8-27b/scripts/serve.sh"],
+      "env": {
+        "QUANT": "Q4_K_M",
+        "MMPROJ": "/mnt/d/models/qwen3.8-27b/Q5_K_S/mmproj-Qwen3.8-27B-bf16.gguf"
+      }
+    },
+    {
+      "id": "solar-open2-250b",
+      "name": "Solar Open2 250B-A15B IQ1_M",
+      "description": "Experimental patched model; single 5090 plus CPU expert offload; 17-19 tok/s.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "solar-open2-250b-iq1",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 900,
+      "required_paths": [
+        "/opt/llama-solar/build-solar/bin/llama-server",
+        "/mnt/d/models/solar-open2-250b/IQ1_M/Solar-Open2-250B-IQ1_M-00001-of-00002.gguf",
+        "/mnt/d/models/solar-open2-250b/IQ1_M/Solar-Open2-250B-IQ1_M-00002-of-00002.gguf"
+      ],
+      "command": ["/mnt/c/Telotia/Github/serve-solar-open2-250b/scripts/serve-iq1.sh", "single-5090"],
+      "env": {"SOLAR_PORT": "8002"}
+    },
+    {
+      "id": "qwen36-27b",
+      "name": "Qwen3.6 27B Q4",
+      "description": "Dense text model; measured about 61.8 tok/s.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "qwen3.6-27b",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 300,
+      "required_paths": ["/data/models/Qwen3.6-27B-Q4/Qwen3.6-27B-UD-Q4_K_XL.gguf"],
+      "command": ["/opt/llama.cpp/build-master/bin/llama-server", "-m", "/data/models/Qwen3.6-27B-Q4/Qwen3.6-27B-UD-Q4_K_XL.gguf", "--host", "127.0.0.1", "--port", "8002", "--alias", "qwen3.6-27b", "-c", "8192", "-ngl", "99", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--no-mmap", "--jinja"]
+    },
+    {
+      "id": "qwen35-9b",
+      "name": "Qwen3.5 9B Q4",
+      "description": "Fast compact text model; measured about 170.9 tok/s.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "qwen3.5-9b",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 180,
+      "required_paths": ["/data/models/Qwen3.5-9B-Q4/Qwen3.5-9B-UD-Q4_K_XL.gguf"],
+      "command": ["/opt/llama.cpp/build-master/bin/llama-server", "-m", "/data/models/Qwen3.5-9B-Q4/Qwen3.5-9B-UD-Q4_K_XL.gguf", "--host", "127.0.0.1", "--port", "8002", "--alias", "qwen3.5-9b", "-c", "8192", "-ngl", "99", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--no-mmap", "--jinja"]
+    },
+    {
+      "id": "gpt-oss-20b",
+      "name": "GPT-OSS 20B Q4",
+      "description": "Very fast small MoE; measured about 278.6 tok/s.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "gpt-oss-20b",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 240,
+      "required_paths": ["/data/models/gpt-oss-20B/gpt-oss-20b-UD-Q4_K_XL.gguf"],
+      "command": ["/opt/llama.cpp/build-master/bin/llama-server", "-m", "/data/models/gpt-oss-20B/gpt-oss-20b-UD-Q4_K_XL.gguf", "--host", "127.0.0.1", "--port", "8002", "--alias", "gpt-oss-20b", "-c", "8192", "-ngl", "99", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--no-mmap", "--jinja"]
+    },
+    {
+      "id": "nemotron-cascade-30b",
+      "name": "Nemotron Cascade 2 30B-A3B Q4",
+      "description": "Fast 30B-class MoE; measured about 267.6 tok/s.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "nemotron-cascade-30b",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 300,
+      "required_paths": ["/data/models/Nemotron-Cascade-2-30B/nvidia_Nemotron-Cascade-2-30B-A3B-Q4_K_M.gguf"],
+      "command": ["/opt/llama.cpp/build-master/bin/llama-server", "-m", "/data/models/Nemotron-Cascade-2-30B/nvidia_Nemotron-Cascade-2-30B-A3B-Q4_K_M.gguf", "--host", "127.0.0.1", "--port", "8002", "--alias", "nemotron-cascade-30b", "-c", "8192", "-ngl", "99", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--no-mmap", "--jinja"]
+    },
+    {
+      "id": "gemma4-12b",
+      "name": "Gemma 4 12B Q4",
+      "description": "Compact dense model; measured about 114.3 tok/s.",
+      "manager": "direct",
+      "port": 8002,
+      "alias": "gemma4-12b",
+      "gpus": ["RTX 5090"],
+      "timeout_seconds": 180,
+      "required_paths": ["/data/models/Gemma4-12B-Q4/gemma-4-12b-it-UD-Q4_K_XL.gguf"],
+      "command": ["/opt/llama.cpp/build-master/bin/llama-server", "-m", "/data/models/Gemma4-12B-Q4/gemma-4-12b-it-UD-Q4_K_XL.gguf", "--host", "127.0.0.1", "--port", "8002", "--alias", "gemma4-12b", "-c", "8192", "-ngl", "99", "-fa", "on", "--cache-type-k", "q8_0", "--cache-type-v", "q8_0", "--no-mmap", "--jinja"]
+    }
+  ]
+}
